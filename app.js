@@ -4,15 +4,15 @@
  * Module dependencies
  */
 var application_root = __dirname,
-express = require('express'), // Web framework
-path = require('path'), // file paths
-mongoose = require('mongoose'); // Acesso ao MongoDB
+        express = require('express'), // Web framework
+        path = require('path'), // file paths
+        mongoose = require('mongoose'); // Acesso ao MongoDB
 
 
 /*
  * Conexão com o banco de dados 
  */
-mongoose.connect( 'mongodb://localhost/colaborativebook' );
+mongoose.connect('mongodb://localhost/colaborativebook');
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'Erro de conexão:'));
 
@@ -21,34 +21,34 @@ db.on('error', console.error.bind(console, 'Erro de conexão:'));
  * Schemas
  */
 var usuarioSchema = new mongoose.Schema({
-    nomeCompleto: { type : String, required : true },
-    nomeUsuario: { type : String, required : true, unique : true },
-    email: { type : String, required : true, unique : true },
-    senha: { type : String, required : true, min : 8 },
-    nascimento: { type : Date, required : true },
-    genero : { type : String, match: /^(m|f)$/}
+    nomeCompleto: {type: String, required: true},
+    nomeUsuario: {type: String, required: true, unique: true},
+    email: {type: String, required: true, unique: true},
+    senha: {type: String, required: true, min: 8},
+    nascimento: {type: Date, required: true},
+    genero: {type: String, match: /^(m|f)$/, required: true}
 });
 
 
 /*
  * Models
  */
-var usuarioModel = mongoose.model( 'Usuario', usuarioSchema );
+var usuarioModel = mongoose.model('Usuario', usuarioSchema);
 
 
 /*
  * Criação e configuração do servidor
  */
 var app = express();
-app.configure( function() {
+app.configure(function () {
     //parses request body and populates request.body
-    app.use( express.bodyParser() );
+    app.use(express.bodyParser());
     //checks request.body for HTTP method overrides
-    app.use( express.methodOverride() );
+    app.use(express.methodOverride());
     //perform route lookup based on url and HTTP method
-    app.use( app.router );
+    app.use(app.router);
     //Show all errors in development
-    app.use( express.errorHandler({ dumpExceptions: true, showStack: true }));
+    app.use(express.errorHandler({dumpExceptions: true, showStack: true}));
 });
 
 
@@ -59,7 +59,7 @@ app.configure( function() {
 //------------------- USUÁRIOS -----------------------------
 
 //Inserção de novo usuário
-app.post( '/api/usuarios', function( request, response ) {
+app.post('/api/usuarios', function (request, response) {
     console.log("POST em /api/usuarios");
     var usuario = new usuarioModel({
         nomeCompleto: request.body.nomeCompleto,
@@ -69,47 +69,79 @@ app.post( '/api/usuarios', function( request, response ) {
         nascimento: request.body.nascimento,
         genero: request.body.genero
     });
-    console.log(request.body.title);
-    usuario.save( function( err ) {
-        if( !err ) {
-            console.log( 'Usuário criado!' );
-            response.statusCode = 200;
-            return response.send( usuario );
-        } else {
-            console.log( err );
-            return response.send('Erro ao gravar novo usuário: ' + err);
+    usuario.save(function (err) {
+
+        if (err) {
+            console.log('Erro ao criar usuário: ' + err);
+            switch (err.name) {
+                case 'ValidationError':
+                    response.statusCode = 400;
+                    break;
+                case 'MongoError':
+                    switch (err.code) {
+                        case 11000:
+                            response.statusCode = 409;
+                            break;
+                        default:
+                            response.statusCode = 500;
+                    }
+                    break;
+                default:
+                    response.statusCode = 500;
+            }
+            return response.send("Erro ao criar usuário: " + err);
         }
+        console.log('Novo usuário criado!');
+        response.statusCode = 201;
+        return response.send(usuario);
+
+
+
+//        if( !err ) {
+//            console.log( 'Usuário criado!' );
+//            response.statusCode = 201;
+//            return response.send( usuario );
+//        } else {
+//            if(err.name === 'ValidationError'){
+//                response.statusCode = 400;
+//            }else{
+//                console.log(err.name)
+//                response.statusCode = 500;
+//            }
+//            console.log( 'Erro ao criar usuário: ' + err );
+//            return response.send('Erro ao criar usuário: ' + err);
+//        }
     });
 });
 
 //Recuperação de um usuário
-app.get( '/api/usuarios/:id', function( request, response ) {
-    console.log("GET em /api/usuarios. ID buscado: " + request.params.id)
-    return usuarioModel.findById( request.params.id, function( err, usuario ) {
-        if( !err ) {
-            return response.send( usuario );
+app.get('/api/usuarios/:id', function (request, response) {
+    console.log("GET em /api/usuarios. ID buscado: " + request.params.id);
+    return usuarioModel.findById(request.params.id, function (err, usuario) {
+        if (!err) {
+            return response.send(usuario);
         } else {
-            console.log( err );
+            console.log(err);
             return response.send('Erro ao recuperar dados de usuário: ' + err);
         }
     });
 });
 
 //Atualização de dados do usuário
-app.put( '/api/usuarios/:id', function( request, response ) {
-    return usuarioModel.findById( request.params.id, function( err, usuario ) {
+app.put('/api/usuarios/:id', function (request, response) {
+    return usuarioModel.findById(request.params.id, function (err, usuario) {
         usuario.nomeCompleto = request.body.nomeCompleto || usuario.nomeCompleto;
         usuario.email = request.body.email || usuario.email;
         usuario.senha = request.body.senha || usuario.senha;
         usuario.nascimento = request.body.nascimento || usuario.nascimento;
         usuario.genero = request.body.genero || usuario.genero;
 
-        return usuario.save( function( err ) {
-            if( !err ) {
-                console.log( 'Usuário ' + request.params.id + ' atualizado!' );
-                return response.send( usuario );
+        return usuario.save(function (err) {
+            if (!err) {
+                console.log('Usuário ' + request.params.id + ' atualizado!');
+                return response.send(usuario);
             } else {
-                console.log( err );
+                console.log(err);
                 return response.send('Erro ao atualizar o usuario ' + request.params.id + ': ' + err);
             }
         });
@@ -117,26 +149,26 @@ app.put( '/api/usuarios/:id', function( request, response ) {
 });
 
 //Exclusão de cadastro de usuario
-app.delete( '/api/usuarios/:id', function( request, response ) {
-    usuarioModel.findById( request.params.id, function( err, usuario ) {
-        if( !err ) {
-            if( usuario === null){
+app.delete('/api/usuarios/:id', function (request, response) {
+    usuarioModel.findById(request.params.id, function (err, usuario) {
+        if (!err) {
+            if (usuario === null) {
                 console.log('DELETE falhou para usuário ' + request.params.id + '. Motivo: Usuário não existe.');
                 response.statusCode = 404;
                 return response.send('Usuário com id ' + request.params.id + ' não encontrado.');
             }
-            return usuario.remove( function( err ) {
-                if( !err ) {
-                    console.log( 'Usuario '+ request.params.id +" foi removido!" );
+            return usuario.remove(function (err) {
+                if (!err) {
+                    console.log('Usuario ' + request.params.id + " foi removido!");
                     response.statusCode = 204;
-                    return response.send( '' );
+                    return response.send('');
                 } else {
                     console.log('DELETE falhou para usuário ' + request.params.id + ': ' + err);
                     response.statusCode = 500;
                     return response.send('Erro ao excluir usuário com id ' + request.params.id + '.');
                 }
             });
-        }else{
+        } else {
             console.log('DELETE falhou para usuário ' + request.params.id + ': ' + err);
             response.statusCode = 500;
             return response.send('Erro ao excluir usuário com id ' + request.params.id + '.');
@@ -148,8 +180,8 @@ app.delete( '/api/usuarios/:id', function( request, response ) {
 /*
  * Iniciando o server
  */
-app.listen( 8123, function() {
-    console.log( 'Express server está ouvindo na porta 8123!' );
+app.listen(8123, function () {
+    console.log('Express server está ouvindo na porta 8123!');
 });
 
 

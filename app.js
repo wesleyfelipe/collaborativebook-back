@@ -58,7 +58,7 @@ app.configure(function () {
 
 //------------------- USUÁRIOS -----------------------------
 
-//Inserção de novo usuário
+//Criação de novo usuário
 app.post('/api/usuarios', function (request, response) {
     console.log("POST em /api/usuarios");
     var usuario = new usuarioModel({
@@ -70,14 +70,14 @@ app.post('/api/usuarios', function (request, response) {
         genero: request.body.genero
     });
     usuario.save(function (err) {
-
         if (err) {
-            console.log('Erro ao criar usuário: ' + err);
             switch (err.name) {
                 case 'ValidationError':
+                    console.log('[WARN] Erro ao criar usuário: ' + err);
                     response.statusCode = 400;
                     break;
                 case 'MongoError':
+                    console.log('[WARN] Erro ao criar usuário: ' + err);
                     switch (err.code) {
                         case 11000:
                             response.statusCode = 409;
@@ -87,42 +87,34 @@ app.post('/api/usuarios', function (request, response) {
                     }
                     break;
                 default:
+                    console.log('[ERROR] Erro ao criar usuário: ' + err);
                     response.statusCode = 500;
             }
             return response.send("Erro ao criar usuário: " + err);
         }
-        console.log('Novo usuário criado!');
+        console.log('[INFO]Usuário ' + usuario.nomeUsuario + ' criado com sucesso.');
         response.statusCode = 201;
         return response.send(usuario);
-
-
-
-//        if( !err ) {
-//            console.log( 'Usuário criado!' );
-//            response.statusCode = 201;
-//            return response.send( usuario );
-//        } else {
-//            if(err.name === 'ValidationError'){
-//                response.statusCode = 400;
-//            }else{
-//                console.log(err.name)
-//                response.statusCode = 500;
-//            }
-//            console.log( 'Erro ao criar usuário: ' + err );
-//            return response.send('Erro ao criar usuário: ' + err);
-//        }
     });
 });
 
 //Recuperação de um usuário
 app.get('/api/usuarios/:id', function (request, response) {
-    console.log("GET em /api/usuarios. ID buscado: " + request.params.id);
+    console.log('GET em /api/usuarios. ID buscado: ' + request.params.id + '.');
     return usuarioModel.findById(request.params.id, function (err, usuario) {
         if (!err) {
-            return response.send(usuario);
+            if(usuario){
+                console.log('[INFO]Usuário ' + request.params.id +' recuperado com sucesso.');
+                response.statusCode = 200;
+                return response.send(usuario);
+            }
+            console.log('[WARN]Usuário '+ request.params.id+' não encontrado.');
+            response.statusCode = 404;
+            return response.send('Usuário '+ request.params.id +' não encontrado!');
         } else {
-            console.log(err);
-            return response.send('Erro ao recuperar dados de usuário: ' + err);
+            console.log('[ERROR]Erro ao recuperar usuário ' + request.params.id + ': ' + err);
+            response.statusCode = 500;
+            return response.send('Erro ao recuperar usuário '+ request.params.id +': ' + err);
         }
     });
 });

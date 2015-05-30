@@ -73,11 +73,11 @@ app.post('/api/usuarios', function (request, response) {
         if (err) {
             switch (err.name) {
                 case 'ValidationError':
-                    console.log('[WARN] Erro ao criar usuário: ' + err);
+                    console.log('[WARN]Erro ao criar usuário: ' + err);
                     response.statusCode = 400;
                     break;
                 case 'MongoError':
-                    console.log('[WARN] Erro ao criar usuário: ' + err);
+                    console.log('[WARN]Erro ao criar usuário: ' + err);
                     switch (err.code) {
                         case 11000:
                             response.statusCode = 409;
@@ -87,7 +87,7 @@ app.post('/api/usuarios', function (request, response) {
                     }
                     break;
                 default:
-                    console.log('[ERROR] Erro ao criar usuário: ' + err);
+                    console.log('[ERROR]Erro ao criar usuário: ' + err);
                     response.statusCode = 500;
             }
             return response.send("Erro ao criar usuário: " + err);
@@ -103,18 +103,18 @@ app.get('/api/usuarios/:id', function (request, response) {
     console.log('GET em /api/usuarios. ID buscado: ' + request.params.id + '.');
     return usuarioModel.findById(request.params.id, function (err, usuario) {
         if (!err) {
-            if(usuario){
-                console.log('[INFO]Usuário ' + request.params.id +' recuperado com sucesso.');
+            if (usuario) {
+                console.log('[INFO]Usuário ' + request.params.id + ' recuperado com sucesso.');
                 response.statusCode = 200;
                 return response.send(usuario);
             }
-            console.log('[WARN]Usuário '+ request.params.id+' não encontrado.');
+            console.log('[WARN]Usuário ' + request.params.id + ' não encontrado.');
             response.statusCode = 404;
-            return response.send('Usuário '+ request.params.id +' não encontrado!');
+            return response.send('Usuário ' + request.params.id + ' não encontrado!');
         } else {
             console.log('[ERROR]Erro ao recuperar usuário ' + request.params.id + ': ' + err);
             response.statusCode = 500;
-            return response.send('Erro ao recuperar usuário '+ request.params.id +': ' + err);
+            return response.send('Erro ao recuperar usuário ' + request.params.id + ': ' + err);
         }
     });
 });
@@ -122,21 +122,55 @@ app.get('/api/usuarios/:id', function (request, response) {
 //Atualização de dados do usuário
 app.put('/api/usuarios/:id', function (request, response) {
     return usuarioModel.findById(request.params.id, function (err, usuario) {
-        usuario.nomeCompleto = request.body.nomeCompleto || usuario.nomeCompleto;
-        usuario.email = request.body.email || usuario.email;
-        usuario.senha = request.body.senha || usuario.senha;
-        usuario.nascimento = request.body.nascimento || usuario.nascimento;
-        usuario.genero = request.body.genero || usuario.genero;
-
-        return usuario.save(function (err) {
-            if (!err) {
-                console.log('Usuário ' + request.params.id + ' atualizado!');
-                return response.send(usuario);
+        if (!err) {
+            if (usuario) {
+                usuario.nomeCompleto = request.body.nomeCompleto || usuario.nomeCompleto;
+                usuario.email = request.body.email || usuario.email;
+                usuario.senha = request.body.senha || usuario.senha;
+                usuario.nascimento = request.body.nascimento || usuario.nascimento;
+                usuario.genero = request.body.genero || usuario.genero;
+                return usuario.save(function (err) {
+                    if (!err) {
+                        console.log('[INFO]Dados do usuário ' + request.params.id + ' foram atualizados.');
+                        response.statusCode = 200;
+                        return response.send(usuario);
+                    } else {
+                        switch (err.name) {
+                            case 'ValidationError':
+                                console.log('[WARN]Dados inconsistentes para atualização do usuário ' + request.params.id + ': ' + err);
+                                response.statusCode = 400;
+                                return response.send("Erro ao atualizar dados de usuário devido a problemas de validação: " + err);
+                                break;
+                            case 'MongoError':
+                                switch (err.code) {
+                                    case 11000:
+                                        console.log('[WARN]Erro ao atualizar cadastro de usuário devido a conflitos de dados: ' + err);
+                                        response.statusCode = 409;
+                                        return response.send("Erro ao atualizar cadastro de usuário devido a conflitos de dados: " + err);
+                                        break;
+                                    default:
+                                        console.log('[ERROR]Erro ao atualizar cadastro de usuário: ' + err);
+                                        response.statusCode = 500;
+                                        return response.send("Erro ao atualizar cadastro de usuário: " + err);
+                                }
+                                break;
+                            default:
+                                console.log('[ERROR]Erro ao atualizar cadastro de usuário: ' + err);
+                                response.statusCode = 500;
+                                return response.send("Erro ao atualizar cadastro de usuário: " + err);
+                        }
+                    }
+                });
             } else {
-                console.log(err);
-                return response.send('Erro ao atualizar o usuario ' + request.params.id + ': ' + err);
+                console.log('[WARN]Atualização de cadastro falhou. Usuário com id ' + request.params.id + 'não foi encontrado.');
+                response.statusCode = 404;
+                return response.send('Usuário com id' + request.params.id + ' não foi encontrado.');
             }
-        });
+        } else {
+            console.log('[ERROR]Erro ao atualizar dados do usuário ' + request.params.id + ':' + err);
+            response.statusCode = 500;
+            return response.send('Erro ao atualizar cadastro.');
+        }
     });
 });
 

@@ -73,6 +73,7 @@ app.post( '/api/usuarios', function( request, response ) {
     usuario.save( function( err ) {
         if( !err ) {
             console.log( 'Usuário criado!' );
+            response.statusCode = 200;
             return response.send( usuario );
         } else {
             console.log( err );
@@ -94,7 +95,6 @@ app.get( '/api/usuarios/:id', function( request, response ) {
     });
 });
 
-
 //Atualização de dados do usuário
 app.put( '/api/usuarios/:id', function( request, response ) {
     return usuarioModel.findById( request.params.id, function( err, usuario ) {
@@ -115,6 +115,35 @@ app.put( '/api/usuarios/:id', function( request, response ) {
         });
     });
 });
+
+//Exclusão de cadastro de usuario
+app.delete( '/api/usuarios/:id', function( request, response ) {
+    usuarioModel.findById( request.params.id, function( err, usuario ) {
+        if( !err ) {
+            if( usuario === null){
+                console.log('DELETE falhou para usuário ' + request.params.id + '. Motivo: Usuário não existe.');
+                response.statusCode = 404;
+                return response.send('Usuário com id ' + request.params.id + ' não encontrado.');
+            }
+            return usuario.remove( function( err ) {
+                if( !err ) {
+                    console.log( 'Usuario '+ request.params.id +" foi removido!" );
+                    response.statusCode = 204;
+                    return response.send( '' );
+                } else {
+                    console.log('DELETE falhou para usuário ' + request.params.id + ': ' + err);
+                    response.statusCode = 500;
+                    return response.send('Erro ao excluir usuário com id ' + request.params.id + '.');
+                }
+            });
+        }else{
+            console.log('DELETE falhou para usuário ' + request.params.id + ': ' + err);
+            response.statusCode = 500;
+            return response.send('Erro ao excluir usuário com id ' + request.params.id + '.');
+        }
+    });
+});
+
 
 /*
  * Iniciando o server

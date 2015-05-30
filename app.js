@@ -56,9 +56,11 @@ app.configure( function() {
  * Rotas
  */
 
+//------------------- USUÁRIOS -----------------------------
+
 //Inserção de novo usuário
 app.post( '/api/usuarios', function( request, response ) {
-    console.log("Recebido POST em /api/usuarios");
+    console.log("POST em /api/usuarios");
     var usuario = new usuarioModel({
         nomeCompleto: request.body.nomeCompleto,
         nomeUsuario: request.body.nomeUsuario,
@@ -79,6 +81,40 @@ app.post( '/api/usuarios', function( request, response ) {
     });
 });
 
+//Recuperação de um usuário
+app.get( '/api/usuarios/:id', function( request, response ) {
+    console.log("GET em /api/usuarios. ID buscado: " + request.params.id)
+    return usuarioModel.findById( request.params.id, function( err, usuario ) {
+        if( !err ) {
+            return response.send( usuario );
+        } else {
+            console.log( err );
+            return response.send('Erro ao recuperar dados de usuário: ' + err);
+        }
+    });
+});
+
+
+//Atualização de dados do usuário
+app.put( '/api/usuarios/:id', function( request, response ) {
+    return usuarioModel.findById( request.params.id, function( err, usuario ) {
+        usuario.nomeCompleto = request.body.nomeCompleto || usuario.nomeCompleto;
+        usuario.email = request.body.email || usuario.email;
+        usuario.senha = request.body.senha || usuario.senha;
+        usuario.nascimento = request.body.nascimento || usuario.nascimento;
+        usuario.genero = request.body.genero || usuario.genero;
+
+        return usuario.save( function( err ) {
+            if( !err ) {
+                console.log( 'Usuário ' + request.params.id + ' atualizado!' );
+                return response.send( usuario );
+            } else {
+                console.log( err );
+                return response.send('Erro ao atualizar o usuario ' + request.params.id + ': ' + err);
+            }
+        });
+    });
+});
 
 /*
  * Iniciando o server

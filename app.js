@@ -30,11 +30,21 @@ var usuarioSchema = new mongoose.Schema({
     imagemPerfil: {type: String, required: true}
 });
 
+var livroSchema = new mongoose.Schema({
+    titulo: {type: String, required: true},
+    genero: {type: String, required: true},
+    enredo: {type: String, required: true},
+    personagens: {type: String, required: true},
+    ambientacao: {type: String, required: true},
+    proprietario: {type: Schema.ObjectId, ref: 'User'}
+});
+
 
 /*
  * Models
  */
 var usuarioModel = mongoose.model('Usuario', usuarioSchema);
+var livroModel = mongoose.model('Livro', livroSchema);
 
 
 /*

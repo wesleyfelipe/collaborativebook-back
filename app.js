@@ -72,7 +72,7 @@ app.configure(function () {
 //------------------- USUÁRIOS -----------------------------
 
 //Criação de novo usuário
-app.post('/api/usuarios', function (request, response) {
+app.post('/colaborativebook/api/usuarios', function (request, response) {
     response.setHeader("Access-Control-Allow-Origin", "*");
     console.log("[INFO]POST em /api/usuarios");
     var usuario = new usuarioModel({
@@ -114,7 +114,7 @@ app.post('/api/usuarios', function (request, response) {
 });
 
 //Recuperação de um usuário
-app.get('/api/usuarios/:id', function (request, response) {
+app.get('/colaborativebook/api/usuarios/:id', function (request, response) {
     response.setHeader("Access-Control-Allow-Origin", "*");
     console.log('[INFO]GET em /api/usuarios. ID buscado: ' + request.params.id + '.');
     return usuarioModel.findById(request.params.id, function (err, usuario) {
@@ -136,7 +136,7 @@ app.get('/api/usuarios/:id', function (request, response) {
 });
 
 //Atualização de dados do usuário
-app.put('/api/usuarios/:id', function (request, response) {
+app.put('/colaborativebook/api/usuarios/:id', function (request, response) {
     response.setHeader("Access-Control-Allow-Origin", "*");
     console.log('[INFO]put em /api/usuarios. ID buscado: ' + request.params.id + '.');
     return usuarioModel.findById(request.params.id, function (err, usuario) {
@@ -194,7 +194,7 @@ app.put('/api/usuarios/:id', function (request, response) {
 });
 
 //Exclusão de cadastro de usuario
-app.delete('/api/usuarios/:id', function (request, response) {
+app.delete('/colaborativebook/api/usuarios/:id', function (request, response) {
     response.setHeader("Access-Control-Allow-Origin", "*");
     console.log('[INFO]DELETE em /api/usuarios. ID buscado: ' + request.params.id + '.');
     usuarioModel.findById(request.params.id, function (err, usuario) {
@@ -227,7 +227,7 @@ app.delete('/api/usuarios/:id', function (request, response) {
 //--------------------------- LIVROS -----------------------------------
 
 //Criação de novo livro
-app.post('/api/livros', function (request, response) {
+app.post('/colaborativebook/api/livros', function (request, response) {
     response.setHeader("Access-Control-Allow-Origin", "*");
     console.log("[INFO]POST em /api/livros");
     var livro = new livroModel({
@@ -268,7 +268,7 @@ app.post('/api/livros', function (request, response) {
 });
 
 //Recuperação de todos os livros da base
-app.get('/api/livros', function (request, response) {
+app.get('/colaborativebook/api/livros', function (request, response) {
     response.setHeader("Access-Control-Allow-Origin", "*");
     console.log('[INFO]GET em /api/livros.');
     return livroModel.find(function(err,livros){
@@ -288,6 +288,37 @@ app.get('/api/livros', function (request, response) {
         }
     });
 });
+
+//Exclusão de livro
+app.delete('/colaborativebook/api/livros/:id', function (request, response) {
+    response.setHeader("Access-Control-Allow-Origin", "*");
+    console.log('[INFO]DELETE em /api/livros. ID buscado: ' + request.params.id + '.');
+    livroModel.findById(request.params.id, function (err, livro) {
+        if (!err) {
+            if (livro) {
+                return livro.remove(function (err) {
+                    if (!err) {
+                        console.log('[INFO]Livro ' + request.params.id + " foi removido da base de dados.");
+                        response.statusCode = 204;
+                        return response.send('');
+                    } else {
+                        console.log('[ERROR]Livro ' + request.params.id + ' não pode ser excluído: ' + err);
+                        response.statusCode = 500;
+                        return response.send('Erro ao excluir livro com id ' + request.params.id + '.');
+                    }
+                });
+            }
+            console.log('[ERROR]Livro ' + request.params.id + ' não pode ser removido da base de dados. Motivo: Livro não existe.');
+            response.statusCode = 404;
+            return response.send('Livro com id ' + request.params.id + ' não encontrado.');
+        } else {
+            console.log('[ERROR]Erro ao deletar livro ' + request.params.id + ': ' + err);
+            response.statusCode = 500;
+            return response.send('Erro ao excluir livro com id ' + request.params.id + ': ' + err);
+        }
+    });
+});
+
 
 /*
  * Iniciando o server

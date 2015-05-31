@@ -274,7 +274,7 @@ app.get('/colaborativebook/api/livros', function (request, response) {
     return livroModel.find(function(err,livros){
         if (!err) {
             if (livros) {
-                console.log('[INFO]Livros ' + request.params.id + ' recuperados com sucesso.');
+                console.log('[INFO]Livros recuperados com sucesso.');
                 response.statusCode = 200;
                 return response.send(livros);
             }
@@ -315,6 +315,28 @@ app.delete('/colaborativebook/api/livros/:id', function (request, response) {
             console.log('[ERROR]Erro ao deletar livro ' + request.params.id + ': ' + err);
             response.statusCode = 500;
             return response.send('Erro ao excluir livro com id ' + request.params.id + ': ' + err);
+        }
+    });
+});
+
+//Recuperar livros de um usuário
+app.get('/colaborativebook/api/usuarios/:idUsuario/livros', function (request, response) {
+    response.setHeader("Access-Control-Allow-Origin", "*");
+    console.log('[INFO]GET em /api/usuarios/:idUsuario/livros.');
+    return livroModel.find({ proprietario : request.params.idUsuario },function(err,livros){
+        if (!err) {
+            if (livros) {
+                console.log('[INFO]Livros do usuario '+ request.params.idUsuario +' recuperados com sucesso.');
+                response.statusCode = 200;
+                return response.send(livros);
+            }
+            console.log('[WARN]Livros não encontrados.');
+            response.statusCode = 404;
+            return response.send('Livros não encontrado!');
+        } else {
+            console.log('[ERROR]Erro ao recuperar livros o usuario '+request.params.idUsuario+': ' + err);
+            response.statusCode = 500;
+            return response.send('Erro ao recuperar livros '+request.params.idUsuario+': ' + err);
         }
     });
 });

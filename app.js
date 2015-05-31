@@ -14,12 +14,14 @@ var application_root = __dirname,
  */
 mongoose.connect('mongodb://localhost/colaborativebook');
 var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'Erro de conexão:'));
+db.on('error', console.error.bind(console, '[ERROR]Erro de conexão:'));
 
 
 /*
  * Schemas
  */
+var Schema = mongoose.Schema;
+
 var usuarioSchema = new mongoose.Schema({
     nomeCompleto: {type: String, required: true},
     nomeUsuario: {type: String, required: true, unique: true},
@@ -36,7 +38,7 @@ var livroSchema = new mongoose.Schema({
     enredo: {type: String, required: true},
     personagens: {type: String, required: true},
     ambientacao: {type: String, required: true},
-    proprietario: {type: Schema.ObjectId, ref: 'User'}
+    proprietario: {type: Schema.ObjectId, ref: 'usuario', required:true}
 });
 
 
@@ -221,6 +223,71 @@ app.delete('/api/usuarios/:id', function (request, response) {
     });
 });
 
+
+//--------------------------- LIVROS -----------------------------------
+
+//Criação de novo livro
+app.post('/api/livros', function (request, response) {
+    response.setHeader("Access-Control-Allow-Origin", "*");
+    console.log("[INFO]POST em /api/livros");
+    var livro = new livroModel({
+        titulo: request.body.titulo,
+        genero: request.body.genero,
+        enredo: request.body.enredo,
+        personagens: request.body.personagens,
+        ambientacao: request.body.ambientacao,
+        proprietario: request.body.proprietario
+    });
+    livro.save(function (err) {
+        if (err) {
+            switch (err.name) {
+                case 'ValidationError':
+                    console.log('[WARN]Erro ao criar livro: ' + err);
+                    response.statusCode = 400;
+                    break;
+                case 'MongoError':
+                    console.log('[WARN]Erro ao criar livro: ' + err);
+                    switch (err.code) {
+                        case 11000:
+                            response.statusCode = 409;
+                            break;
+                        default:
+                            response.statusCode = 500;
+                    }
+                    break;
+                default:
+                    console.log('[ERROR]Erro ao criar livro: ' + err);
+                    response.statusCode = 500;
+            }
+            return response.send("Erro ao criar livro: " + err);
+        }
+        console.log('[INFO]Livro ' + livro.titulo + ' criado com sucesso.');
+        response.statusCode = 201;
+        return response.send(livro);
+    });
+});
+
+//Recuperação de todos os livros da base
+app.get('/api/livros', function (request, response) {
+    response.setHeader("Access-Control-Allow-Origin", "*");
+    console.log('[INFO]GET em /api/livros.');
+    return livroModel.find(function(err,livros){
+        if (!err) {
+            if (livros) {
+                console.log('[INFO]Livros ' + request.params.id + ' recuperados com sucesso.');
+                response.statusCode = 200;
+                return response.send(livros);
+            }
+            console.log('[WARN]Livros não encontrados.');
+            response.statusCode = 404;
+            return response.send('Livros não encontrado!');
+        } else {
+            console.log('[ERROR]Erro ao recuperar livros: ' + err);
+            response.statusCode = 500;
+            return response.send('Erro ao recuperar livros : ' + err);
+        }
+    });
+});
 
 /*
  * Iniciando o server

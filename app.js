@@ -26,7 +26,8 @@ var usuarioSchema = new mongoose.Schema({
     email: {type: String, required: true, unique: true},
     senha: {type: String, required: true, min: 8},
     nascimento: {type: Date, required: true},
-    genero: {type: String, match: /^(masculino|feminino)$/, required: true}
+    genero: {type: String, match: /^(masculino|feminino)$/, required: true},
+    imagemPerfil: {type: String, required: true}
 });
 
 
@@ -68,7 +69,8 @@ app.post('/api/usuarios', function (request, response) {
         email: request.body.email,
         senha: request.body.senha,
         nascimento: request.body.nascimento,
-        genero: request.body.genero
+        genero: request.body.genero,
+        imagemPerfil: 'assets/img/default_avatar.png'
     });
     usuario.save(function (err) {
         if (err) {
@@ -133,6 +135,7 @@ app.put('/api/usuarios/:id', function (request, response) {
                 usuario.senha = request.body.senha || usuario.senha;
                 usuario.nascimento = request.body.nascimento || usuario.nascimento;
                 usuario.genero = request.body.genero || usuario.genero;
+                usuario.imagemPerfil = request.body.imagemPerfil || usuario.imagemPerfil;
                 return usuario.save(function (err) {
                     if (!err) {
                         console.log('[INFO]Dados do usuário ' + request.params.id + ' foram atualizados.');

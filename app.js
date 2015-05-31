@@ -26,7 +26,7 @@ var usuarioSchema = new mongoose.Schema({
     email: {type: String, required: true, unique: true},
     senha: {type: String, required: true, min: 8},
     nascimento: {type: Date, required: true},
-    genero: {type: String, match: /^(m|f)$/, required: true}
+    genero: {type: String, match: /^(masculino|feminino)$/, required: true}
 });
 
 
@@ -60,7 +60,8 @@ app.configure(function () {
 
 //Criação de novo usuário
 app.post('/api/usuarios', function (request, response) {
-    console.log("POST em /api/usuarios");
+    response.setHeader("Access-Control-Allow-Origin", "*");
+    console.log("[INFO]POST em /api/usuarios");
     var usuario = new usuarioModel({
         nomeCompleto: request.body.nomeCompleto,
         nomeUsuario: request.body.nomeUsuario,
@@ -100,7 +101,8 @@ app.post('/api/usuarios', function (request, response) {
 
 //Recuperação de um usuário
 app.get('/api/usuarios/:id', function (request, response) {
-    console.log('GET em /api/usuarios. ID buscado: ' + request.params.id + '.');
+    response.setHeader("Access-Control-Allow-Origin", "*");
+    console.log('[INFO]GET em /api/usuarios. ID buscado: ' + request.params.id + '.');
     return usuarioModel.findById(request.params.id, function (err, usuario) {
         if (!err) {
             if (usuario) {
@@ -121,6 +123,8 @@ app.get('/api/usuarios/:id', function (request, response) {
 
 //Atualização de dados do usuário
 app.put('/api/usuarios/:id', function (request, response) {
+    response.setHeader("Access-Control-Allow-Origin", "*");
+    console.log('[INFO]put em /api/usuarios. ID buscado: ' + request.params.id + '.');
     return usuarioModel.findById(request.params.id, function (err, usuario) {
         if (!err) {
             if (usuario) {
@@ -176,6 +180,8 @@ app.put('/api/usuarios/:id', function (request, response) {
 
 //Exclusão de cadastro de usuario
 app.delete('/api/usuarios/:id', function (request, response) {
+    response.setHeader("Access-Control-Allow-Origin", "*");
+    console.log('[INFO]DELETE em /api/usuarios. ID buscado: ' + request.params.id + '.');
     usuarioModel.findById(request.params.id, function (err, usuario) {
         if (!err) {
             if (usuario) {

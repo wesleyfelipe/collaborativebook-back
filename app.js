@@ -139,37 +139,37 @@ app.put('/api/usuarios/:id', function (request, response) {
                             case 'ValidationError':
                                 console.log('[WARN]Dados inconsistentes para atualização do usuário ' + request.params.id + ': ' + err);
                                 response.statusCode = 400;
-                                return response.send("Erro ao atualizar dados de usuário devido a problemas de validação: " + err);
+                                return response.send('Erro ao atualizar dados de usuário ' + request.params.id + ' devido a problemas de validação: ' + err);
                                 break;
                             case 'MongoError':
                                 switch (err.code) {
                                     case 11000:
-                                        console.log('[WARN]Erro ao atualizar cadastro de usuário devido a conflitos de dados: ' + err);
+                                        console.log('[WARN]Erro ao atualizar cadastro de usuário ' + request.params.id + ' devido a conflitos de dados: ' + err);
                                         response.statusCode = 409;
-                                        return response.send("Erro ao atualizar cadastro de usuário devido a conflitos de dados: " + err);
+                                        return response.send('Erro ao atualizar cadastro de usuário ' + request.params.id + ' devido a conflitos de dados: ' + err);
                                         break;
                                     default:
-                                        console.log('[ERROR]Erro ao atualizar cadastro de usuário: ' + err);
+                                        console.log('[ERROR]Erro ao atualizar cadastro do usuário ' + request.params.id + ': ' + err);
                                         response.statusCode = 500;
-                                        return response.send("Erro ao atualizar cadastro de usuário: " + err);
+                                        return response.send('Erro ao atualizar cadastro do usuário ' + request.params.id + ': ' + err);
                                 }
                                 break;
                             default:
                                 console.log('[ERROR]Erro ao atualizar cadastro de usuário: ' + err);
                                 response.statusCode = 500;
-                                return response.send("Erro ao atualizar cadastro de usuário: " + err);
+                                return response.send('Erro ao atualizar cadastro do usuário ' + request.params.id + ': ' + err);
                         }
                     }
                 });
             } else {
                 console.log('[WARN]Atualização de cadastro falhou. Usuário com id ' + request.params.id + 'não foi encontrado.');
                 response.statusCode = 404;
-                return response.send('Usuário com id' + request.params.id + ' não foi encontrado.');
+                return response.send('Usuário com id' + request.params.id + ' não foi encontrado: ' + err);
             }
         } else {
             console.log('[ERROR]Erro ao atualizar dados do usuário ' + request.params.id + ':' + err);
             response.statusCode = 500;
-            return response.send('Erro ao atualizar cadastro.');
+            return response.send('[ERROR]Erro ao atualizar cadastro do usuário ' + request.params.id + ': ' + err);
         }
     });
 });
@@ -178,26 +178,26 @@ app.put('/api/usuarios/:id', function (request, response) {
 app.delete('/api/usuarios/:id', function (request, response) {
     usuarioModel.findById(request.params.id, function (err, usuario) {
         if (!err) {
-            if (usuario === null) {
-                console.log('DELETE falhou para usuário ' + request.params.id + '. Motivo: Usuário não existe.');
-                response.statusCode = 404;
-                return response.send('Usuário com id ' + request.params.id + ' não encontrado.');
+            if (usuario) {
+                return usuario.remove(function (err) {
+                    if (!err) {
+                        console.log('[INFO]Usuario ' + request.params.id + " foi removido da base de dados.");
+                        response.statusCode = 204;
+                        return response.send('');
+                    } else {
+                        console.log('[ERROR]Usuário ' + request.params.id + ' não pode ser excluído: ' + err);
+                        response.statusCode = 500;
+                        return response.send('Erro ao excluir usuário com id ' + request.params.id + '.');
+                    }
+                });
             }
-            return usuario.remove(function (err) {
-                if (!err) {
-                    console.log('Usuario ' + request.params.id + " foi removido!");
-                    response.statusCode = 204;
-                    return response.send('');
-                } else {
-                    console.log('DELETE falhou para usuário ' + request.params.id + ': ' + err);
-                    response.statusCode = 500;
-                    return response.send('Erro ao excluir usuário com id ' + request.params.id + '.');
-                }
-            });
+            console.log('[ERROR]Usuário ' + request.params.id + ' não pode ser removido da base de dados. Motivo: Usuário não existe.');
+            response.statusCode = 404;
+            return response.send('Usuário com id ' + request.params.id + ' não encontrado.');
         } else {
-            console.log('DELETE falhou para usuário ' + request.params.id + ': ' + err);
+            console.log('[ERROR]Erro ao deletar usuário ' + request.params.id + ': ' + err);
             response.statusCode = 500;
-            return response.send('Erro ao excluir usuário com id ' + request.params.id + '.');
+            return response.send('Erro ao excluir usuário com id ' + request.params.id + ': ' + err);
         }
     });
 });
@@ -207,7 +207,7 @@ app.delete('/api/usuarios/:id', function (request, response) {
  * Iniciando o server
  */
 app.listen(8123, function () {
-    console.log('Express server está ouvindo na porta 8123!');
+    console.log('[INFO]Server está ouvindo na porta 8123.');
 });
 
 

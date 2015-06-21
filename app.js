@@ -341,6 +341,28 @@ app.get('/colaborativebook/api/usuarios/:idUsuario/livros', function (request, r
     });
 });
 
+//Recuperar um livro
+app.get('/colaborativebook/api/livros/:id', function (request, response) {
+    response.setHeader("Access-Control-Allow-Origin", "*");
+    console.log('[INFO]GET em /api/livros/:id.');
+    return livroModel.findById(request.params.id, function (err, livro) {
+        if (!err) {
+            if (livro) {
+                console.log('[INFO]Livro com id '+ request.params.id +' recuperado com sucesso.');
+                response.statusCode = 200;
+                return response.send(livro);
+            }
+            console.log('[WARN]Livro não encontrados com id '+request.params.id+'.');
+            response.statusCode = 404;
+            return response.send('Livro não encontrados com id '+request.params.id+'!');
+        } else {
+            console.log('[ERROR]Erro ao recuperar livro com id '+request.params.id+': ' + err);
+            response.statusCode = 500;
+            return response.send('Erro ao recuperar livro com id '+request.params.id+': ' + err);
+        }
+    });
+});
+
 
 /*
  * Iniciando o server

@@ -32,6 +32,7 @@ var usuarioSchema = new mongoose.Schema({
     genero: {type: String, match: /^(masculino|feminino)$/, required: true},
     imagemPerfil: {type: String, required: true}
 });
+usuarioSchema.plugin(idValidator);
 
 var livroSchema = new mongoose.Schema({
     titulo: {type: String, required: true},
@@ -41,6 +42,7 @@ var livroSchema = new mongoose.Schema({
     ambientacao: {type: String, required: true},
     proprietario: {type: Schema.ObjectId, ref: 'Usuario', required:true}
 });
+livroSchema.plugin(idValidator);
 
 var capituloSchema = new mongoose.Schema({
     titulo: {type: String, required: true},

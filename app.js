@@ -6,7 +6,8 @@
 var application_root = __dirname,
         express = require('express'), // Web framework
         path = require('path'), // file paths
-        mongoose = require('mongoose'); // Acesso ao MongoDB
+        mongoose = require('mongoose'), // Acesso ao MongoDB
+        idValidator = require('mongoose-id-validator'); //Validação das referencias entre documentos no mongo
 
 
 /*
@@ -38,15 +39,25 @@ var livroSchema = new mongoose.Schema({
     enredo: {type: String, required: true},
     personagens: {type: String, required: true},
     ambientacao: {type: String, required: true},
-    proprietario: {type: Schema.ObjectId, ref: 'usuario', required:true}
+    proprietario: {type: Schema.ObjectId, ref: 'Usuario', required:true}
 });
 
+var capituloSchema = new mongoose.Schema({
+    titulo: {type: String, required: true},
+    indice: {type: Number, required: true},
+    texto: {type: String, required: true},
+    aprovado: {type: Boolean, default: false},
+    autor: {type: Schema.ObjectId, ref: 'Usuario', required:true},
+    livro: {type: mongoose.Schema.Types.ObjectId, ref: 'Livro', required:true}
+});
+capituloSchema.plugin(idValidator);
 
 /*
  * Models
  */
 var usuarioModel = mongoose.model('Usuario', usuarioSchema);
 var livroModel = mongoose.model('Livro', livroSchema);
+var capituloModel = mongoose.model('Capitulo', capituloSchema);
 
 
 /*
@@ -363,6 +374,48 @@ app.get('/colaborativebook/api/livros/:id', function (request, response) {
     });
 });
 
+
+//---------------------------- CAPITULOS --------------------------------------
+//Criação de novo capitulo
+app.post('/colaborativebook/api/livros/:idLivro/capitulos', function (request, response) {
+    response.setHeader("Access-Control-Allow-Origin", "*");
+    console.log("[INFO]POST em /api/livros/:idLivro/capitulos");
+    var capitulo = new capituloModel({
+        titulo: request.body.titulo,
+        indice: request.body.indice,
+        texto: request.body.texto,
+        aprovado: request.body.aprovado,
+        autor: request.body.autor,
+        livro: request.params.idLivro
+    });
+    capitulo.save(function (err) {
+        if (err) {
+            switch (err.name) {
+                case 'ValidationError':
+                    console.log('[WARN]Erro ao criar capitulo: ' + err);
+                    response.statusCode = 400;
+                    break;
+                case 'MongoError':
+                    console.log('[WARN]Erro ao criar capitulo: ' + err);
+                    switch (err.code) {
+                        case 11000:
+                            response.statusCode = 409;
+                            break;
+                        default:
+                            response.statusCode = 500;
+                    }
+                    break;
+                default:
+                    console.log('[ERROR]Erro ao criar capitulo: ' + err);
+                    response.statusCode = 500;
+            }
+            return response.send("Erro ao criar capitulo: " + err);
+        }
+        console.log('[INFO]Capitulo ' + capitulo.titulo + ' criado com sucesso.');
+        response.statusCode = 201;
+        return response.send(capitulo);
+    });
+});
 
 /*
  * Iniciando o server

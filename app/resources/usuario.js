@@ -17,7 +17,7 @@ exports.create = function (req, res) {
         if (err) {
             return res.send(err);
         }
-        return res.send(usuario);
+        res.json({message: 'Usuário adicionado!', data: usuario});
     });
 
 };

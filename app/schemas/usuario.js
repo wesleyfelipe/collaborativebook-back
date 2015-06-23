@@ -8,7 +8,7 @@ var UsuarioSchema = new mongoose.Schema({
     email: {type: String, required: true, unique: true},
     senha: {type: String, required: true, min: 8},
     nascimento: {type: Date, required: true},
-    token: {type: String},
+    role: {type: String, required: true},
     genero: {type: String, match: /^(masculino|feminino)$/, required: true},
     imagemPerfil: {type: String, required: true}
 });

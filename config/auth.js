@@ -7,9 +7,6 @@ var auth = {
 
     login: function (req, res) {
 
-        console.log(req.body.username);
-        console.log(req.body.password);
-
         var username = req.body.username || '';
         var password = req.body.password || '';
 
@@ -22,66 +19,36 @@ var auth = {
             return;
         }
 
-        // Fire a query to your DB and check if the credentials are valid
-        var dbUserObj = auth.validate(username, password);
-
-        console.log(dbUserObj);
-
-        if (!dbUserObj) { // If authentication fails, we send a 401 back
-            res.status(401);
-            res.json({
-                "status": 401,
-                "message": "Invalid credentials"
-            });
-            return;
-        }
-
-        if (dbUserObj) {
-            // If authentication is success, we will generate a token
-            // and dispatch it to the client
-            res.json(genToken(dbUserObj));
-        }
-
-    },
-
-    validate: function (username, password) {
-
         Usuario.findOne({email: username, senha: password}, function (err, user) {
+
             if (err) {
                 console.log(err);
             }
-            //return user.toObject();
-        });
 
-        // spoofing the DB response for simplicity
-        //var dbUserObj = { // spoofing a userobject from the DB.
-        //    name: 'arvind',
-        //    role: 'user',
-        //    username: 'arvind@myapp.com'
-        //};
-        //return dbUserObj;
+            if (!user) { // If authentication fails, we send a 401 back
 
-    },
+                res.status(401);
+                res.json({
+                    "status": 401,
+                    "message": "Invalid credentials"
+                });
 
-    validateUser: function (username) {
+                return;
 
-        Usuario.findOne({email: username}, function (err, user) {
-            if (err) {
-                console.log(err);
             }
-            return user;
+
+            if (user) {
+                // If authentication is success, we will generate a token
+                // and dispatch it to the client
+
+                res.json(genToken(user));
+
+            }
+
+
         });
 
-        // spoofing the DB response for simplicity
-        //var dbUserObj = { // spoofing a userobject from the DB.
-        //    name: 'arvind',
-        //    role: 'user',
-        //    username: 'arvind@myapp.com'
-        //};
-
-        //return dbUserObj;
-
-    },
+    }
 
 };
 

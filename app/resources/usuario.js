@@ -11,6 +11,7 @@ exports.create = function (req, res) {
     usuario.senha = req.body.senha;
     usuario.nascimento = req.body.nascimento;
     usuario.genero = req.body.genero;
+    usuario.role = "admin";
     usuario.imagemPerfil = 'assets/img/default_avatar.png';
 
     usuario.save(function (err) {

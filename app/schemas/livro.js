@@ -7,7 +7,7 @@ var LivroSchema = new mongoose.Schema({
     enredo: {type: String, required: true},
     personagens: {type: String, required: true},
     ambientacao: {type: String, required: true},
-    proprietario: {type: Schema.ObjectId, ref: 'usuario', required:true}
+    proprietario: {type: Schema.ObjectId, ref: 'usuario', required:false}
 });
 
 mongoose.exports = mongoose.model('Livro', LivroSchema);

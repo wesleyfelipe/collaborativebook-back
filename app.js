@@ -25,18 +25,17 @@ fs.readdirSync(__dirname + '/app/schemas').forEach(function (file) {
     if (~file.indexOf('.js')) require(__dirname + '/app/schemas/' + file);
 });
 
-
-// ROUTES
-
-require('./config/routes')(app, passport);
-
 // CONFIG EXPRESS
 
 app.use(cors());
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+// ROUTES
+
+require('./config/routes')(app, passport);
 
 // SERVER
 

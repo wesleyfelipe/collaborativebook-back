@@ -25,7 +25,7 @@ exports.create = function (req, res) {
 
 exports.show = function (req, res) {
 
-    Usuario.findById(req.params.id, function (err, usuario) {
+    Usuario.findById(req.user._id, function (err, usuario) {
         if (err) {
             return res.send(err);
         }
@@ -36,7 +36,7 @@ exports.show = function (req, res) {
 
 exports.delete = function (req, res) {
 
-    Usuario.findByIdAndRemove(req.params.id, function (err, usuario) {
+    Usuario.findByIdAndRemove(req.user._id, function (err, usuario) {
         if (err) {
             return res.send(err);
         }
@@ -46,9 +46,8 @@ exports.delete = function (req, res) {
 };
 
 exports.update = function (req, res) {
-//router.put('/colaborativebook/api/usuarios/:id', function (request, response) {
 
-    Usuario.findById(req.params.id, function (err, usuario) {
+    Usuario.findById(req.user._id, function (err, usuario) {
         if (!err) {
             if (usuario) {
                 usuario.nomeCompleto = req.body.nomeCompleto || usuario.nomeCompleto;

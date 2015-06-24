@@ -5,10 +5,9 @@ var Usuario = mongoose.model('Usuario');
 
 module.exports = function (req, res, next) {
 
-    var token = (req.body && req.body.access_token) || (req.query && req.query.access_token) || req.headers['x-access-token'];
-    var key = (req.body && req.body.x_key) || (req.query && req.query.x_key) || req.headers['x-key'];
+    var token = req.headers['x-access-token'];
 
-    if (token || key) {
+    if (token) {
 
         try {
 
@@ -23,13 +22,16 @@ module.exports = function (req, res, next) {
                 return;
             }
 
-            Usuario.findOne({email: key}, function (err, user) {
+            Usuario.findOne({email: decoded.login}, function (err, user) {
+
                 if (err) {
                     console.log(err);
                 }
 
                 if (user) {
                     if ((req.url.indexOf('admin') >= 0 && user.role == 'admin') || (req.url.indexOf('admin') < 0 && req.url.indexOf('/api/') >= 0)) {
+
+                        req.user = user;
                         next(); // To move to next middleware
                     } else {
                         res.status(403);

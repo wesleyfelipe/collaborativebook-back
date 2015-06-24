@@ -10,7 +10,7 @@ exports.create = function (req, res) {
     livro.enredo = req.body.enredo;
     livro.personagens = req.body.personagens;
     livro.ambientacao = req.body.ambientacao;
-    livro.proprietario = req.body.proprietario;
+    livro.proprietario = req.user._id;
 
     livro.save(function (err) {
         if (err) {
@@ -23,7 +23,7 @@ exports.create = function (req, res) {
 
 exports.index = function (req, res) {
 
-    Livro.find(function (err, livros) {
+    Livro.find({proprietario: req.user._id}, function (err, livros) {
         if (err) {
             return res.send(err);
         }
@@ -34,7 +34,7 @@ exports.index = function (req, res) {
 
 exports.delete = function (req, res) {
 
-    Livro.findByIdAndRemove(req.params.id, function (err, livro) {
+    Livro.findOneAndRemove({_id: req.params.id, proprietario: req.user._id}, function (err, livro) {
         if (err) {
             return res.send(err);
         }

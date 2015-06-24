@@ -32,6 +32,17 @@ exports.index = function (req, res) {
 
 };
 
+exports.biblioteca = function (req, res) {
+
+    Livro.where('proprietario').ne(req.user._id).exec(function (err, livros) {
+        if (err) {
+            return res.send(err);
+        }
+        res.send(livros);
+    });
+
+};
+
 exports.delete = function (req, res) {
 
     Livro.findOneAndRemove({_id: req.params.id, proprietario: req.user._id}, function (err, livro) {
@@ -39,17 +50,6 @@ exports.delete = function (req, res) {
             return res.send(err);
         }
         return res.json({message: 'Livro removido!', data: livro});
-    });
-
-};
-
-exports.livrosUsuario = function (req, res) {
-
-    Livro.find({proprietario: req.params.id}, function (err, livros) {
-        if (err) {
-            return res.send(err);
-        }
-        res.send(livros);
     });
 
 };

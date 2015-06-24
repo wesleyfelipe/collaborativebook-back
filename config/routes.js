@@ -15,11 +15,18 @@ module.exports = function (app) {
 
     // LIVROS
 
-    app.get('/api/livro/:id', livro.show);
+    // Livros do usuario
     app.get('/api/livro', livro.index);
+
+    // Livro especifico
+    app.get('/api/livro/:id', livro.show);
+
+    // Livros de outros usuarios (biblioteca)
+    app.get('/api/biblioteca', livro.biblioteca);
+
     app.post('/api/livro', livro.create);
+
     app.delete('/api/livro/:id', livro.delete);
-    app.get('/api/usuarios/:idUsuario/livros', livro.livrosUsuario);
 
     // CAPITULOS
 

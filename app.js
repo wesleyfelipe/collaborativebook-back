@@ -12,7 +12,7 @@ var port = process.env.PORT || 3000;
 
 // CONFIG MONGO
 
-mongoose.connect('mongodb://localhost/colaborativebook');
+mongoose.connect('cbappuser:kw982uso321@ds033740.mongolab.com:33740/colaborativebook');
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, '[ERROR] Erro de conexão (Mongo):'));
 

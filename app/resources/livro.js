@@ -19,6 +19,7 @@ exports.create = function (req, res) {
         res.json({message: 'Livro adicionado!', data: livro});
     });
 
+
 };
 
 exports.index = function (req, res) {

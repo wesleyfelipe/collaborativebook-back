@@ -9,6 +9,10 @@ var auth = require('./auth.js');
 
 module.exports = function (app) {
 
+    app.get('/', function (req, res) {
+        res.json({message: 'Welcome to colaborativebook API.'});
+    });
+
     // LOGIN
 
     app.post('/login', auth.login);

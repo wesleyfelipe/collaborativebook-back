@@ -13,6 +13,14 @@ module.exports = function (app) {
 
     app.post('/login', auth.login);
 
+    // USUARIO
+
+    app.post('/signin', usuario.create);
+
+    app.put('/api/update', usuario.update);
+    app.get('/api/user', usuario.show);
+    app.delete('/api/usuario/', usuario.delete);
+
     // LIVROS
 
     // Livros do usuario
@@ -35,10 +43,5 @@ module.exports = function (app) {
     app.put('/api/livro/:idLivro/capitulo/:idCapitulo', capitulo.update);
     app.delete('/api/livro/:idLivro/capitulo/:idCapitulo', capitulo.delete);
 
-    // USUARIOS
-
-    app.post('/api/usuario', usuario.create);
-    app.get('/api/usuario/:id', usuario.show);
-    app.delete('/api/usuario/:id', usuario.delete);
 
 };

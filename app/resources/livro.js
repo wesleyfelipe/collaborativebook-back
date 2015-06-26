@@ -35,34 +35,13 @@ exports.index = function (req, res) {
 
 exports.biblioteca = function (req, res) {
 
-    Livro.where('proprietario').ne(req.user._id).lean().exec(function (err, livros) {
+    Livro.where('proprietario').ne(req.user._id).populate('proprietario').exec(function (err, livros) {
 
         if (err) {
             return res.send(err);
         }
 
-        var id_proprietarios = livros.map(function(livro) { return livro.proprietario; });
-
-        Usuario.find({_id: {$in: id_proprietarios}}).lean().exec(function (err, usuarios) {
-            if (err) {
-                return res.send(err);
-            }
-
-            // Que Deus esteja conosco ...
-
-            for(var l in livros) {
-                for(var u in usuarios) {
-
-                    if (livros[l].proprietario.toString() == usuarios[u]._id.toString()){
-                        livros[l].nomeProprietario = usuarios[u].nomeCompleto;
-                        break;
-                    }
-                }
-            }
-
-            res.send(livros);
-
-        });
+        res.send(livros);
 
     });
 

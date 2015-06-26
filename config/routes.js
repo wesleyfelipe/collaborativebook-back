@@ -42,6 +42,7 @@ module.exports = function (app) {
 
     // CAPITULOS
 
+    app.get('/api/livro/:idLivro/capitulo', capitulo.index);
     app.post('/api/livro/:idLivro/capitulo', capitulo.create);
     app.post('/api/livro/:idLivro/capitulo/:idCapitulo', capitulo.aprova);
     app.put('/api/livro/:idLivro/capitulo/:idCapitulo', capitulo.update);

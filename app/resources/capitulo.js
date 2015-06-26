@@ -2,6 +2,18 @@ var mongoose = require('mongoose');
 var Capitulo = mongoose.model('Capitulo');
 var Livro = mongoose.model('Livro');
 
+
+exports.index = function (req, res) {
+
+    Capitulo.find({livro: req.params.idLivro}, function (err, capitulos) {
+        if (err) {
+            return res.send(err);
+        }
+        res.send(capitulos);
+    });
+
+};
+
 exports.create = function (req, res) {
 
     Livro.findOne({_id: req.params.idLivro}, function (err, livro) {

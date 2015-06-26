@@ -35,7 +35,7 @@ exports.index = function (req, res) {
 
 exports.biblioteca = function (req, res) {
 
-    Livro.where('proprietario').ne(req.user._id).populate('proprietario').exec(function (err, livros) {
+    Livro.where('proprietario').ne(req.user._id).populate('proprietario', 'nomeCompleto').exec(function (err, livros) {
 
         if (err) {
             return res.send(err);

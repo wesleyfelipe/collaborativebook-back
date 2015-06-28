@@ -55,9 +55,9 @@ module.exports = function (req, res, next) {
 
         } catch (err) {
 
-            res.status(500);
+            res.status(401);
             res.json({
-                "status": 500,
+                "status": 401,
                 "message": "Oops something went wrong",
                 "error": err
             });

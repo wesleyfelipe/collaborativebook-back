@@ -24,7 +24,7 @@ exports.create = function (req, res) {
 
 exports.index = function (req, res) {
 
-    Livro.find({proprietario: req.user._id}, function (err, livros) {
+    Livro.find({proprietario: req.user._id}).populate('proprietario', 'nomeCompleto').exec(function (err, livros) {
         if (err) {
             return res.send(err);
         }

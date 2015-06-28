@@ -47,14 +47,14 @@ exports.create = function (req, res) {
                 if (err) {
                     return res.send(err);
                 }
-                res.json({message: 'Capítulo adicionado!', data: capitulo});
+                res.json({message: 'Capï¿½tulo adicionado!', data: capitulo});
             });
 
         } else {
 
             res.json({
                 "status": 404,
-                "message": "Não encontrado."
+                "message": "Nï¿½o encontrado."
             });
 
         }
@@ -77,7 +77,7 @@ exports.aprova = function (req, res) {
 
                 return res.json({
                     "status": 401,
-                    "message": "Este capítulo já foi aprovado."
+                    "message": "Este capï¿½tulo jï¿½ foi aprovado."
                 });
 
             }
@@ -88,14 +88,14 @@ exports.aprova = function (req, res) {
                 if (err) {
                     return res.send(err);
                 }
-                res.json({message: 'Capítulo aprovado!', data: capitulo});
+                res.json({message: 'Capï¿½tulo aprovado!', data: capitulo});
             });
 
         } else {
 
             res.json({
                 "status": 404,
-                "message": "Não encontrado."
+                "message": "Nï¿½o encontrado."
             });
 
         }
@@ -118,7 +118,7 @@ exports.update = function (req, res) {
 
                 return res.json({
                     "status": 401,
-                    "message": "Este capítulo já foi aprovado."
+                    "message": "Este capï¿½tulo jï¿½ foi aprovado."
                 });
 
             }
@@ -130,14 +130,14 @@ exports.update = function (req, res) {
                 if (err) {
                     return res.send(err);
                 }
-                res.json({message: 'Capítulo atualizado!', data: capitulo});
+                res.json({message: 'Capï¿½tulo atualizado!', data: capitulo});
             });
 
         } else {
 
             res.json({
                 "status": 404,
-                "message": "Não encontrado."
+                "message": "Nï¿½o encontrado."
             });
 
         }
@@ -148,11 +148,11 @@ exports.update = function (req, res) {
 
 exports.delete = function (req, res) {
 
-    Capitulo.findOneAndRemove({_id: req.params.id, autor: req.user._id}, function (err, capitulo) {
+    Capitulo.findOneAndRemove({_id: req.params.idCapitulo, autor: req.user._id}, function (err, capitulo) {
         if (err) {
             return res.send(err);
         }
-        return res.json({message: 'Capítulo removido!', data: capitulo});
+        return res.json({message: 'Capï¿½tulo removido!', data: capitulo});
     });
 
 };

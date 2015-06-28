@@ -3,6 +3,17 @@ var Capitulo = mongoose.model('Capitulo');
 var Livro = mongoose.model('Livro');
 
 
+exports.show = function (req, res) {
+
+    Capitulo.findById(req.params.idCapitulo).populate('livro').populate('autor', 'nomeCompleto').exec(function (err, capitulo) {
+        if (err) {
+            return res.send(err);
+        }
+        res.send(capitulo);
+    });
+
+};
+
 exports.index = function (req, res) {
 
     Capitulo.find({livro: req.params.idLivro}, function (err, capitulos) {

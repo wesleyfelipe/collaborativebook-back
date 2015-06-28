@@ -22,6 +22,7 @@ module.exports = function (app) {
     app.post('/signin', usuario.create);
 
     app.put('/api/update', usuario.update);
+    app.put('/api/usuario/senha', usuario.alterPassword);
     app.get('/api/user', usuario.show);
     app.delete('/api/usuario/', usuario.delete);
 

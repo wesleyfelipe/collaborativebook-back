@@ -18,7 +18,7 @@ exports.create = function (req, res) {
         if (err) {
             return res.send(err);
         }
-        res.json({message: 'Usuário adicionado!', data: usuario});
+        res.json({message: 'Usuï¿½rio adicionado!', data: usuario});
     });
 
 };
@@ -45,6 +45,34 @@ exports.delete = function (req, res) {
 
 };
 
+exports.alterPassword = function(req, res){
+    Usuario.findByIdAndRemove(req.user._id, function (err, usuario) {
+        if (err) {
+            return res.send(err);
+        }
+        
+        if (usuario) {
+
+            if(usuario.senha == req.senhaAntiga){
+                usuario.senha = req.novaSenha || usuario.senha
+                usuario.save(function (err) {
+                    if (err) {
+                        return res.send(err);
+                    }
+                    res.json({message: 'Senha atualizada!', data: usuario});
+                });
+            }else{
+                res.statusCode = 412;
+                res.json({message: 'Senha incorreta'});
+            }
+
+        } else {
+            res.statusCode = 404;
+            res.json({message: 'Nï¿½o encontrado'});
+        }
+    });
+};
+
 exports.update = function (req, res) {
 
     Usuario.findById(req.user._id, function (err, usuario) {
@@ -66,12 +94,12 @@ exports.update = function (req, res) {
                 if (err) {
                     return res.send(err);
                 }
-                res.json({message: 'Usuário atualizado!', data: usuario});
+                res.json({message: 'Usuï¿½rio atualizado!', data: usuario});
             });
 
         } else {
             res.statusCode = 404;
-            res.json({message: 'Não encontrado'});
+            res.json({message: 'Nï¿½o encontrado'});
         }
 
     });
